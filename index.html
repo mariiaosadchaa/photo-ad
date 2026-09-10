@@ -53,6 +53,16 @@
   .gallery-head{ text-align:center; padding: clamp(2.6rem,6vw,4rem) 0 1.6rem; border-top:1px solid var(--line); }
   .gallery-head h2{ margin:.4rem 0 0; font-size:clamp(1.5rem,3vw,2.1rem); font-weight:500; }
 
+  .gallery-tabs{ display:flex; justify-content:center; gap:.6rem; margin-top:1.6rem; flex-wrap:wrap; }
+  .gallery-tab{
+    background:none; border:1px solid var(--line); color:var(--text-soft);
+    padding:.6rem 1.35rem; border-radius:999px; cursor:pointer;
+    font-family:"PT Sans", sans-serif; font-size:.8rem; letter-spacing:.08em; text-transform:uppercase;
+    transition:border-color .25s ease, color .25s ease, background-color .25s ease;
+  }
+  .gallery-tab:hover{ border-color:var(--gold); color:var(--gold-soft); }
+  .gallery-tab.active{ background:var(--gold-soft); border-color:var(--gold-soft); color:var(--bg); }
+
   /* masonry — each photo keeps its own natural proportions (no crop,
      no forced box), flowing into columns like a real photo album.
      Each photo fades and rises into place the moment it scrolls into
@@ -136,11 +146,16 @@
 
   <div class="gallery-head">
     <p class="tracked">Наш день · <span id="galleryCount"></span> фото</p>
-    <h2 class="display">Фотографії весілля</h2>
+    <h2 class="display" id="galleryTitle">Фотографії весілля</h2>
+    <div class="gallery-tabs" role="tablist">
+      <button type="button" class="gallery-tab active" id="tabMain" role="tab" aria-selected="true">Наші фото</button>
+      <button type="button" class="gallery-tab" id="tabGuests" role="tab" aria-selected="false">Фото від гостей</button>
+    </div>
   </div>
 </div>
 
 <div id="galleryGrid"></div>
+<div id="guestGrid" hidden></div>
 
 <div class="wrap">
   <section class="closing">
@@ -270,33 +285,62 @@
   "IMG_9999.jpg"
 ];
 
+  var guestPhotos = [
+    "IMG_9308.jpg",
+    "IMG_9311.jpg",
+    "IMG_9314.jpg",
+    "IMG_9394.jpg",
+    "IMG_9396.jpg",
+    "IMG_9400.jpg",
+    "IMG_9404.jpg",
+    "IMG_9487.jpg",
+    "IMG_9498.jpg",
+    "IMG_9513.jpg",
+    "IMG_9522.jpg",
+    "IMG_9523.jpg",
+    "IMG_9530.jpg",
+    "IMG_9568.jpg",
+    "IMG_9576.jpg",
+    "IMG_9832.jpg",
+    "IMG_9858.jpg",
+    "IMG_0161.jpg",
+    "IMG_0173.jpg",
+    "IMG_0175.jpg",
+    "IMG_0197.jpg",
+    "IMG_0200.jpg",
+    "IMG_0224.jpg",
+    "IMG_0233.jpg",
+    "IMG_0327.jpg",
+    "IMG_0338.jpg",
+    "IMG_0344.jpg",
+    "IMG_0349.jpg",
+    "IMG_0354.jpg",
+    "IMG_0364.jpg",
+    "IMG_0367.jpg",
+    "IMG_0375.jpg",
+    "IMG_0376.jpg",
+    "IMG_0380.jpg",
+    "IMG_0382.jpg",
+    "IMG_0385.jpg",
+    "IMG_0389.jpg",
+    "IMG_0257.jpg",
+    "IMG_0259.jpg",
+    "IMG_0319.jpg",
+    "IMG_9215.jpg"
+  ];
 
-  var grid = document.getElementById("galleryGrid");
-  var frag = document.createDocumentFragment();
 
-  function altFor(i){ return "Даня та Аліна — весільне фото " + (i + 1); }
+  var mainGridEl = document.getElementById("galleryGrid");
+  var guestGridEl = document.getElementById("guestGrid");
 
-  // grid shows a small, fast-loading thumbnail; the full original file
-  // (same quality as in your folder) loads only when a photo is opened
-  // in the fullscreen viewer — that keeps the page light on mobile data.
-  function thumbFor(name){ return "thumbs/" + name; }
+  var collections = {
+    main:   { photos: photos,      thumbDir: "thumbs/",       fullDir: "",        grid: mainGridEl,  built: false, label: "весільне фото" },
+    guests: { photos: guestPhotos, thumbDir: "guests/thumbs/", fullDir: "guests/", grid: guestGridEl, built: false, label: "фото від гостей" }
+  };
 
-  // Native `loading="lazy"` does not defer images correctly inside a CSS
-  // multi-column (masonry) layout — browsers can't reliably tell how far a
-  // tile is from the viewport when the flow runs down columns, so every
-  // thumbnail would otherwise download immediately on page load. Instead,
-  // each tile only gets its real thumbnail src once an IntersectionObserver
-  // says it's actually near the viewport — that's what keeps first load light.
-  function makeTile(i){
-    var tile = document.createElement("div");
-    tile.className = "tile";
-    var img = document.createElement("img");
-    img.dataset.src = thumbFor(photos[i]);
-    img.alt = altFor(i);
-    tile.appendChild(img);
-    tile.addEventListener("click", function(){ openLightbox(i); });
-    return tile;
-  }
+  function altFor(collId, i){ return "Даня та Аліна — " + collections[collId].label + " " + (i + 1); }
+  function thumbFor(collId, name){ return collections[collId].thumbDir + name; }
+  function fullFor(collId, name){ return collections[collId].fullDir + name; }
 
   function loadTileImage(tile){
     var img = tile.querySelector("img");
@@ -306,22 +350,18 @@
     }
   }
 
-  grid.className = "gallery";
-  for (var i = 0; i < photos.length; i++){
-    frag.appendChild(makeTile(i));
-  }
-
-  grid.appendChild(frag);
-  document.getElementById("galleryCount").textContent = String(photos.length).padStart(2, "0");
-
-  // each tile loads its thumbnail and fades/rises into place once it's
-  // getting close to the viewport (loaded a bit ahead of time so nothing
-  // pops in blank while scrolling)
-  var tiles = grid.querySelectorAll(".tile");
-  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduceMotion || !("IntersectionObserver" in window)){
-    tiles.forEach(function(t){ loadTileImage(t); t.classList.add("in-view"); });
-  } else {
+  // Native `loading="lazy"` does not defer images correctly inside a CSS
+  // multi-column (masonry) layout — browsers can't reliably tell how far a
+  // tile is from the viewport when the flow runs down columns, so every
+  // thumbnail would otherwise download immediately on page load. Instead,
+  // each tile only gets its real thumbnail src once an IntersectionObserver
+  // says it's actually near the viewport — that's what keeps first load light.
+  function attachReveal(tiles){
+    var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion || !("IntersectionObserver" in window)){
+      tiles.forEach(function(t){ loadTileImage(t); t.classList.add("in-view"); });
+      return;
+    }
     var revealer = new IntersectionObserver(function(entries){
       entries.forEach(function(entry){
         if (entry.isIntersecting){
@@ -336,66 +376,124 @@
     window.setTimeout(function(){ tiles.forEach(function(t){ loadTileImage(t); t.classList.add("in-view"); }); }, 4000);
   }
 
+  // The guest gallery's tiles aren't created until its tab is opened for the
+  // first time, so a guest who never clicks that tab never downloads any of
+  // those thumbnails either.
+  function buildGallery(collId){
+    var coll = collections[collId];
+    if (coll.built) return;
+    coll.built = true;
+    coll.grid.className = "gallery";
+    var frag = document.createDocumentFragment();
+    coll.photos.forEach(function(name, i){
+      var tile = document.createElement("div");
+      tile.className = "tile";
+      var img = document.createElement("img");
+      img.dataset.src = thumbFor(collId, name);
+      img.alt = altFor(collId, i);
+      tile.appendChild(img);
+      tile.addEventListener("click", function(){ openLightbox(collId, i); });
+      frag.appendChild(tile);
+    });
+    coll.grid.appendChild(frag);
+    attachReveal(coll.grid.querySelectorAll(".tile"));
+  }
+
+  buildGallery("main");
+  document.getElementById("galleryCount").textContent = String(photos.length).padStart(2, "0");
+
+  var tabMain = document.getElementById("tabMain");
+  var tabGuests = document.getElementById("tabGuests");
+  var galleryCountEl = document.getElementById("galleryCount");
+  var galleryTitleEl = document.getElementById("galleryTitle");
+
+  function activateTab(collId){
+    buildGallery(collId);
+    mainGridEl.hidden = collId !== "main";
+    guestGridEl.hidden = collId !== "guests";
+    tabMain.classList.toggle("active", collId === "main");
+    tabGuests.classList.toggle("active", collId === "guests");
+    tabMain.setAttribute("aria-selected", collId === "main" ? "true" : "false");
+    tabGuests.setAttribute("aria-selected", collId === "guests" ? "true" : "false");
+    galleryCountEl.textContent = String(collections[collId].photos.length).padStart(2, "0");
+    galleryTitleEl.textContent = collId === "main" ? "Фотографії весілля" : "Фото від гостей";
+  }
+
+  tabMain.addEventListener("click", function(){ activateTab("main"); });
+  tabGuests.addEventListener("click", function(){ activateTab("guests"); });
+
   var lightbox = document.getElementById("lightbox");
   var lbImg = document.getElementById("lbImg");
   var lbSpinner = document.getElementById("lbSpinner");
   var lbCaption = document.getElementById("lbCaption");
   var lbPlay = document.getElementById("lbPlay");
+  var activeColl = "main";
   var current = 0;
   var playTimer = null;
 
-  // full-resolution originals are heavy (0.5-4MB each), so the lightbox
+  // full-resolution originals are heavy (0.5-6MB each), so the lightbox
   // preloads the next/previous photo in the background as soon as one is
   // opened — by the time someone actually taps an arrow, that image is
   // usually already sitting in the browser cache and appears instantly.
   // A spinner covers the (rare, first-tap) case where it isn't yet.
   var preloaded = {};
-  function preload(i){
-    if (i < 0 || i >= photos.length || preloaded[i]) return;
+  function preload(collId, i){
+    var coll = collections[collId];
+    if (i < 0 || i >= coll.photos.length) return;
+    var key = collId + ":" + i;
+    if (preloaded[key]) return;
     var im = new Image();
-    im.src = photos[i];
-    preloaded[i] = im;
+    im.src = fullFor(collId, coll.photos[i]);
+    preloaded[key] = im;
   }
 
-  function openLightbox(i){ current = i; render(); lightbox.classList.add("open"); }
+  function openLightbox(collId, i){
+    activeColl = collId;
+    current = i;
+    render();
+    lightbox.classList.add("open");
+  }
 
   var renderToken = 0;
   function render(){
     var token = ++renderToken;
-    var target = photos[current];
+    var coll = collections[activeColl];
+    var target = fullFor(activeColl, coll.photos[current]);
     lbImg.classList.add("fading");
 
     function apply(){
       if (token !== renderToken) return; // a newer tap has since superseded this one
       lbImg.src = target;
-      lbImg.alt = altFor(current);
-      lbCaption.textContent = (current + 1) + " / " + photos.length;
+      lbImg.alt = altFor(activeColl, current);
+      lbCaption.textContent = (current + 1) + " / " + coll.photos.length;
       lbImg.classList.remove("fading");
       lbSpinner.classList.remove("show");
     }
 
     window.setTimeout(function(){
       if (token !== renderToken) return;
-      var cached = preloaded[current];
+      var key = activeColl + ":" + current;
+      var cached = preloaded[key];
       if (cached && cached.complete){
         apply();
       } else {
         lbSpinner.classList.add("show");
         var im = cached || new Image();
-        preloaded[current] = im;
+        preloaded[key] = im;
         im.onload = function(){ if (token === renderToken) apply(); };
         if (!cached) im.src = target;
         else if (im.complete) apply();
       }
       // warm the neighbors so the *next* tap is instant
-      preload(current + 1 < photos.length ? current + 1 : 0);
-      preload(current - 1 >= 0 ? current - 1 : photos.length - 1);
+      var n = coll.photos.length;
+      preload(activeColl, current + 1 < n ? current + 1 : 0);
+      preload(activeColl, current - 1 >= 0 ? current - 1 : n - 1);
     }, 180);
   }
 
   function closeLightbox(){ lightbox.classList.remove("open"); stopPlay(); }
-  function next(){ current = (current + 1) % photos.length; render(); }
-  function prev(){ current = (current - 1 + photos.length) % photos.length; render(); }
+  function next(){ var n = collections[activeColl].photos.length; current = (current + 1) % n; render(); }
+  function prev(){ var n = collections[activeColl].photos.length; current = (current - 1 + n) % n; render(); }
 
   function startPlay(){
     lbPlay.classList.add("on");
@@ -424,7 +522,7 @@
   });
 
   document.getElementById("slideshowBtn").addEventListener("click", function(){
-    openLightbox(0);
+    openLightbox("main", 0);
     startPlay();
   });
 })();
