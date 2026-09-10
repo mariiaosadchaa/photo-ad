@@ -1,0 +1,362 @@
+<title>Даня та Аліна</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=PT+Sans:wght@400;700&display=swap">
+<style>
+  :root{
+    --bg:        #121110;
+    --bg2:       #1B1917;
+    --text:      #EDE9E1;
+    --text-soft: #9C968A;
+    --gold:      #C9A56A;
+    --gold-soft: #E4CB9B;
+    --line:      #3A362F;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:"PT Sans", Arial, sans-serif; font-size:16px; line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{ max-width:100%; display:block; }
+  .display{ font-family:"Playfair Display", Georgia, serif; font-weight:500; font-style:italic; text-wrap:balance; }
+  .tracked{ text-transform:uppercase; letter-spacing:.22em; font-size:.68rem; color:var(--gold); }
+  a{ color:inherit; }
+  .wrap{ max-width:1040px; margin:0 auto; padding:0 1.5rem; }
+
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 2rem 0; border-bottom:1px solid var(--line);
+  }
+  .topbar .mark{ font-family:"Playfair Display", serif; font-style:italic; font-size:1.05rem; letter-spacing:.02em; color:var(--gold-soft); }
+  .topbar-right{ display:flex; align-items:center; gap:1.4rem; }
+  .slideshow-btn{
+    background:none; border:1px solid var(--line); color:var(--gold-soft);
+    padding:.5rem .9rem; border-radius:2px; cursor:pointer; font-family:"PT Sans",sans-serif;
+    letter-spacing:.14em; transition:border-color .25s ease, color .25s ease;
+  }
+  .slideshow-btn:hover{ border-color:var(--gold); color:var(--gold); }
+
+  .hero{ text-align:center; padding: clamp(3rem,7vw,5rem) 0 clamp(2rem,5vw,3.4rem); }
+  .hero .names{
+    margin:.7rem 0 0; font-size:clamp(2.8rem, 8vw, 5.4rem); line-height:1.08; font-weight:500; color:var(--text);
+  }
+  .hero .names .amp{ color:var(--gold); font-size:.6em; margin:0 .16em; }
+  .hero .rule{ width:1px; height:44px; background:var(--gold); margin:1.6rem auto 0; }
+  .hero .tagline{ margin:1.4rem auto 0; max-width:38ch; color:var(--text-soft); font-style:italic; font-family:"Playfair Display", serif; font-size:1.1rem; }
+
+  .meta{ display:flex; justify-content:center; gap:3rem; margin-top:2.4rem; }
+  .meta .item{ text-align:center; }
+  .meta .val{ margin-top:.4rem; color:var(--text); font-size:1rem; }
+
+  .gallery-head{ text-align:center; padding: clamp(2.6rem,6vw,4rem) 0 1.6rem; border-top:1px solid var(--line); }
+  .gallery-head h2{ margin:.4rem 0 0; font-size:clamp(1.5rem,3vw,2.1rem); font-weight:500; }
+
+  /* masonry — each photo keeps its own natural proportions (no crop,
+     no forced box), flowing into columns like a real photo album.
+     Each photo fades and rises into place the moment it scrolls into
+     view, so moving down the page feels like turning through an
+     album rather than loading a static wall. */
+  .gallery{
+    columns: 3;
+    column-gap: 32px;
+    padding: 0 32px;
+  }
+  .tile{
+    position:relative; overflow:hidden; cursor:zoom-in; background:var(--bg2);
+    break-inside: avoid;
+    margin: 0 0 32px;
+    opacity:0; transform:translateY(28px);
+    transition: opacity .8s ease, transform .8s ease;
+  }
+  .tile.in-view{ opacity:1; transform:translateY(0); }
+  .tile img{ width:100%; height:auto; display:block; transition:transform .5s ease; }
+  .tile:hover img{ transform:scale(1.03); }
+  .tile::after{
+    content:""; position:absolute; inset:0; border:2px solid rgba(201,165,106,0); transition:border-color .3s ease; pointer-events:none;
+  }
+  .tile:hover::after{ border-color: rgba(201,165,106,.85); }
+
+  @media (max-width:900px){ .gallery{ columns:2; column-gap:20px; padding:0 20px; } .tile{ margin-bottom:20px; } }
+  @media (max-width:520px){ .gallery{ columns:1; column-gap:16px; padding:0 16px; } .tile{ margin-bottom:16px; } }
+  @media (prefers-reduced-motion: reduce){
+    .tile{ opacity:1; transform:none; transition:none; }
+  }
+
+  .closing{ text-align:center; padding: clamp(3rem,6vw,4.4rem) 0; border-top:1px solid var(--line); }
+  .closing p{ margin:0 auto; max-width:42ch; color:var(--text-soft); }
+  .closing .sign{ margin-top:1.3rem; font-family:"Playfair Display", serif; font-style:italic; font-size:1.5rem; color:var(--gold-soft); }
+
+  footer{ text-align:center; padding:1.8rem 0 2.6rem; border-top:1px solid var(--line); color:var(--text-soft); font-size:.8rem; letter-spacing:.1em; }
+
+  .lightbox{ position:fixed; inset:0; background:rgba(8,7,6,.97); display:none; align-items:center; justify-content:center; z-index:100; padding:4vh 4vw; }
+  .lightbox.open{ display:flex; }
+  .lightbox img{ max-width:100%; max-height:88vh; transition:opacity .35s ease; }
+  .lightbox img.fading{ opacity:0; }
+  .lb-btn{ position:absolute; background:none; border:none; color:rgba(237,233,225,.85); font-size:1.7rem; cursor:pointer; padding:.5rem .8rem; }
+  .lb-btn:hover{ color:var(--gold-soft); }
+  .lb-close{ top:1.2rem; right:1.4rem; }
+  .lb-prev{ left:.4rem; top:50%; transform:translateY(-50%); font-size:2.3rem; }
+  .lb-next{ right:.4rem; top:50%; transform:translateY(-50%); font-size:2.3rem; }
+  .lb-play{ bottom:1.1rem; left:1.4rem; font-size:1.15rem; }
+  .lb-play.on{ color:var(--gold); }
+  .lb-caption{ position:absolute; bottom:1.4rem; left:0; right:0; text-align:center; color:rgba(237,233,225,.5); font-size:.76rem; letter-spacing:.1em; font-variant-numeric: tabular-nums; }
+  @media (prefers-reduced-motion: reduce){ .lightbox img{ transition:none; } }
+
+  @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } .tile img, .tile::after{ transition:none; } }
+</style>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="mark">Д &amp; А</div>
+    <div class="topbar-right">
+      <button id="slideshowBtn" class="slideshow-btn tracked">&#9654; Слайд-шоу</button>
+      <div class="tracked">28.08.2026</div>
+    </div>
+  </div>
+
+  <section class="hero">
+    <p class="tracked">Весільна памʼятка</p>
+    <h1 class="names display">Даня<span class="amp">&amp;</span>Аліна</h1>
+    <div class="rule"></div>
+    <p class="tagline">Того дня двоє стали одним цілим.</p>
+    <div class="meta">
+      <div class="item"><div class="tracked">Дата</div><div class="val">28 серпня 2026</div></div>
+      <div class="item"><div class="tracked">Місце</div><div class="val">Україна</div></div>
+    </div>
+  </section>
+
+  <div class="gallery-head">
+    <p class="tracked">Наш день · <span id="galleryCount"></span> фото</p>
+    <h2 class="display">Фотографії весілля</h2>
+  </div>
+</div>
+
+<div id="galleryGrid"></div>
+
+<div class="wrap">
+  <section class="closing">
+    <p>Дякуємо, що були поруч у цей особливий день. Кожна мить тепер тут — назавжди.</p>
+    <p class="sign">Даня &amp; Аліна</p>
+  </section>
+
+  <footer>Даня та Аліна · 28 · 08 · 2026</footer>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <button class="lb-btn lb-close" id="lbClose" aria-label="Закрити">&times;</button>
+  <button class="lb-btn lb-prev" id="lbPrev" aria-label="Попереднє фото">&#8249;</button>
+  <img id="lbImg" alt="">
+  <button class="lb-btn lb-next" id="lbNext" aria-label="Наступне фото">&#8250;</button>
+  <button class="lb-btn lb-play" id="lbPlay" aria-label="Слайд-шоу">&#9654;</button>
+  <div class="lb-caption" id="lbCaption"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var photos = [
+"IMG_9999.jpg",
+"IMG_9989.jpg",
+"IMG_0184.jpg",
+"IMG_9597.jpg",
+"IMG_9456.jpg",
+"IMG_9958.jpg",
+"IMG_9275.jpg",
+"IMG_9235.jpg",
+"IMG_0201.jpg",
+"IMG_0092.jpg",
+"IMG_9768.jpg",
+"IMG_9240.jpg",
+"IMG_9554.jpg",
+"IMG_9970.jpg",
+"IMG_0129.jpg",
+"IMG_0131-2.jpg",
+"IMG_0225.jpg",
+"IMG_0106-2.jpg",
+"IMG_0112-2.jpg",
+"IMG_0185.jpg",
+"IMG_0217.jpg",
+"IMG_0007.jpg",
+"IMG_0148.jpg",
+"IMG_0146.jpg",
+"IMG_0009.jpg",
+"IMG_9925.jpg",
+"IMG_0150.jpg",
+"IMG_9700.jpg",
+"IMG_0004.jpg",
+"IMG_0075.jpg",
+"IMG_9430.jpg",
+"IMG_0231.jpg",
+"IMG_9706.jpg",
+"IMG_0043.jpg",
+"IMG_9709.jpg",
+"IMG_0026.jpg",
+"IMG_9695.jpg",
+"IMG_9735.jpg",
+"IMG_9584.jpg",
+"IMG_9872.jpg",
+"IMG_0282.jpg",
+"IMG_9713.jpg",
+"IMG_0089.jpg",
+"IMG_0244.jpg",
+"IMG_9908.jpg",
+"IMG_0279.jpg",
+"IMG_0305.jpg",
+"IMG_9587.jpg",
+"IMG_0310.jpg",
+"IMG_9915.jpg",
+"IMG_0035.jpg",
+"IMG_0083.jpg",
+"IMG_0255.jpg",
+"IMG_9984.jpg",
+"IMG_0299.jpg",
+"IMG_0254.jpg",
+"IMG_9408.jpg",
+"IMG_9740.jpg",
+"IMG_9932.jpg",
+"IMG_0274.jpg",
+"IMG_9874.jpg",
+"IMG_0266.jpg",
+"IMG_9557.jpg",
+"IMG_9577.jpg",
+"IMG_9888.jpg",
+"IMG_0316.jpg",
+"IMG_9762.jpg",
+"IMG_9754.jpg",
+"IMG_9545.jpg",
+"IMG_9818.jpg",
+"IMG_9953.jpg",
+"IMG_9738.jpg",
+"IMG_9946.jpg",
+"IMG_9799.jpg",
+"IMG_9817.jpg",
+"IMG_9437.jpg",
+"IMG_9800.jpg",
+"IMG_9380.jpg",
+"IMG_9880.jpg",
+"IMG_9626.jpg",
+"IMG_9480.jpg",
+"IMG_9940.jpg",
+"IMG_9438.jpg",
+"IMG_9463.jpg",
+"IMG_9810.jpg",
+"IMG_9645.jpg",
+"IMG_9442.jpg",
+"IMG_9942.jpg",
+"IMG_9776.jpg",
+"IMG_9203.jpg",
+"IMG_9468.jpg",
+"IMG_9783.jpg",
+"IMG_9245.jpg",
+"IMG_9548.jpg",
+"IMG_9793.jpg",
+"IMG_9790.jpg",
+"IMG_9281-2.jpg",
+"IMG_9474.jpg",
+"IMG_9208.jpg",
+"IMG_9212.jpg"
+];
+
+
+  var grid = document.getElementById("galleryGrid");
+  var frag = document.createDocumentFragment();
+
+  function altFor(i){ return "Даня та Аліна — весільне фото " + (i + 1); }
+
+  function makeTile(i){
+    var tile = document.createElement("div");
+    tile.className = "tile";
+    var img = document.createElement("img");
+    img.src = photos[i];
+    img.alt = altFor(i);
+    img.loading = "lazy";
+    tile.appendChild(img);
+    tile.addEventListener("click", function(){ openLightbox(i); });
+    return tile;
+  }
+
+  grid.className = "gallery";
+  for (var i = 0; i < photos.length; i++){
+    frag.appendChild(makeTile(i));
+  }
+
+  grid.appendChild(frag);
+  document.getElementById("galleryCount").textContent = String(photos.length).padStart(2, "0");
+
+  // each tile fades and rises into place as it scrolls into view
+  var tiles = grid.querySelectorAll(".tile");
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduceMotion || !("IntersectionObserver" in window)){
+    tiles.forEach(function(t){ t.classList.add("in-view"); });
+  } else {
+    var revealer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting){
+          entry.target.classList.add("in-view");
+          revealer.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+    tiles.forEach(function(t){ revealer.observe(t); });
+    // safety net: if something keeps a tile from ever intersecting, reveal anyway
+    window.setTimeout(function(){ tiles.forEach(function(t){ t.classList.add("in-view"); }); }, 4000);
+  }
+
+  var lightbox = document.getElementById("lightbox");
+  var lbImg = document.getElementById("lbImg");
+  var lbCaption = document.getElementById("lbCaption");
+  var lbPlay = document.getElementById("lbPlay");
+  var current = 0;
+  var playTimer = null;
+
+  function openLightbox(i){ current = i; render(); lightbox.classList.add("open"); }
+
+  function render(){
+    lbImg.classList.add("fading");
+    window.setTimeout(function(){
+      lbImg.src = photos[current];
+      lbImg.alt = altFor(current);
+      lbCaption.textContent = (current + 1) + " / " + photos.length;
+      lbImg.classList.remove("fading");
+    }, 180);
+  }
+
+  function closeLightbox(){ lightbox.classList.remove("open"); stopPlay(); }
+  function next(){ current = (current + 1) % photos.length; render(); }
+  function prev(){ current = (current - 1 + photos.length) % photos.length; render(); }
+
+  function startPlay(){
+    lbPlay.classList.add("on");
+    lbPlay.innerHTML = "&#10074;&#10074;";
+    playTimer = window.setInterval(next, 3200);
+  }
+  function stopPlay(){
+    lbPlay.classList.remove("on");
+    lbPlay.innerHTML = "&#9654;";
+    if (playTimer){ window.clearInterval(playTimer); playTimer = null; }
+  }
+  function togglePlay(){ if (playTimer) stopPlay(); else startPlay(); }
+
+  document.getElementById("lbClose").addEventListener("click", closeLightbox);
+  document.getElementById("lbNext").addEventListener("click", function(){ stopPlay(); next(); });
+  document.getElementById("lbPrev").addEventListener("click", function(){ stopPlay(); prev(); });
+  lbPlay.addEventListener("click", togglePlay);
+  lightbox.addEventListener("click", function(e){ if (e.target === lightbox) closeLightbox(); });
+
+  document.addEventListener("keydown", function(e){
+    if (!lightbox.classList.contains("open")) return;
+    if (e.key === "Escape") closeLightbox();
+    if (e.key === "ArrowRight"){ stopPlay(); next(); }
+    if (e.key === "ArrowLeft"){ stopPlay(); prev(); }
+    if (e.key === " "){ e.preventDefault(); togglePlay(); }
+  });
+
+  document.getElementById("slideshowBtn").addEventListener("click", function(){
+    openLightbox(0);
+    startPlay();
+  });
+})();
+</script>
