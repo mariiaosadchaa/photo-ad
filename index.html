@@ -266,11 +266,16 @@
 
   function altFor(i){ return "Даня та Аліна — весільне фото " + (i + 1); }
 
+  // grid shows a small, fast-loading thumbnail; the full original file
+  // (same quality as in your folder) loads only when a photo is opened
+  // in the fullscreen viewer — that keeps the page light on mobile data.
+  function thumbFor(name){ return "thumbs/" + name; }
+
   function makeTile(i){
     var tile = document.createElement("div");
     tile.className = "tile";
     var img = document.createElement("img");
-    img.src = photos[i];
+    img.src = thumbFor(photos[i]);
     img.alt = altFor(i);
     img.loading = "lazy";
     tile.appendChild(img);
