@@ -180,8 +180,6 @@
 (function(){
   "use strict";
 
-  
-
   var photos = [
   "IMG_0004.jpg",
   "IMG_0007.jpg",
@@ -286,14 +284,9 @@
 ];
 
   var guestPhotos = [
-    "IMG_9308.jpg",
-    "IMG_9311.jpg",
     "IMG_9314.jpg",
-    "IMG_9394.jpg",
     "IMG_9396.jpg",
-    "IMG_9400.jpg",
     "IMG_9404.jpg",
-    "IMG_9487.jpg",
     "IMG_9498.jpg",
     "IMG_9513.jpg",
     "IMG_9522.jpg",
@@ -304,9 +297,7 @@
     "IMG_9832.jpg",
     "IMG_9858.jpg",
     "IMG_0161.jpg",
-    "IMG_0173.jpg",
     "IMG_0175.jpg",
-    "IMG_0197.jpg",
     "IMG_0200.jpg",
     "IMG_0224.jpg",
     "IMG_0233.jpg",
@@ -317,14 +308,12 @@
     "IMG_0354.jpg",
     "IMG_0364.jpg",
     "IMG_0367.jpg",
-    "IMG_0375.jpg",
     "IMG_0376.jpg",
     "IMG_0380.jpg",
     "IMG_0382.jpg",
     "IMG_0385.jpg",
     "IMG_0389.jpg",
     "IMG_0257.jpg",
-    "IMG_0259.jpg",
     "IMG_0319.jpg",
     "IMG_9215.jpg"
   ];
@@ -345,7 +334,7 @@
   // that cached copy indefinitely, even after a hard refresh. Bumping this
   // version tag changes every photo URL, which forces a genuinely fresh
   // download regardless of what a visitor's browser cached before.
-  var ASSET_VERSION = "3";
+  var ASSET_VERSION = "4";
 
   function altFor(collId, i){ return "Даня та Аліна — " + collections[collId].label + " " + (i + 1); }
   function thumbFor(collId, name){ return collections[collId].thumbDir + name + "?v=" + ASSET_VERSION; }
