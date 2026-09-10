@@ -338,9 +338,18 @@
     guests: { photos: guestPhotos, thumbDir: "guests/thumbs/", fullDir: "guests/", grid: guestGridEl, built: false, label: "фото від гостей" }
   };
 
+  // Photos are served with a year-long "immutable" cache header (so repeat
+  // visits load instantly) — great once a file's content is final, but it
+  // means any browser that already loaded an OLDER version of a filename
+  // (e.g. the guest photos before they were corrected) will keep showing
+  // that cached copy indefinitely, even after a hard refresh. Bumping this
+  // version tag changes every photo URL, which forces a genuinely fresh
+  // download regardless of what a visitor's browser cached before.
+  var ASSET_VERSION = "3";
+
   function altFor(collId, i){ return "Даня та Аліна — " + collections[collId].label + " " + (i + 1); }
-  function thumbFor(collId, name){ return collections[collId].thumbDir + name; }
-  function fullFor(collId, name){ return collections[collId].fullDir + name; }
+  function thumbFor(collId, name){ return collections[collId].thumbDir + name + "?v=" + ASSET_VERSION; }
+  function fullFor(collId, name){ return collections[collId].fullDir + name + "?v=" + ASSET_VERSION; }
 
   function loadTileImage(tile){
     var img = tile.querySelector("img");
