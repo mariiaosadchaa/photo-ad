@@ -94,15 +94,22 @@
   .lightbox.open{ display:flex; }
   .lightbox img{ max-width:100%; max-height:88vh; transition:opacity .35s ease; }
   .lightbox img.fading{ opacity:0; }
-  .lb-btn{ position:absolute; background:none; border:none; color:rgba(237,233,225,.85); font-size:1.7rem; cursor:pointer; padding:.5rem .8rem; }
+  .lb-btn{ position:absolute; background:none; border:none; color:rgba(237,233,225,.85); font-size:1.7rem; cursor:pointer; padding:.9rem 1.1rem; z-index:2; }
   .lb-btn:hover{ color:var(--gold-soft); }
-  .lb-close{ top:1.2rem; right:1.4rem; }
-  .lb-prev{ left:.4rem; top:50%; transform:translateY(-50%); font-size:2.3rem; }
-  .lb-next{ right:.4rem; top:50%; transform:translateY(-50%); font-size:2.3rem; }
-  .lb-play{ bottom:1.1rem; left:1.4rem; font-size:1.15rem; }
+  .lb-close{ top:.7rem; right:.9rem; }
+  .lb-prev{ left:0; top:50%; transform:translateY(-50%); font-size:2.3rem; }
+  .lb-next{ right:0; top:50%; transform:translateY(-50%); font-size:2.3rem; }
+  .lb-play{ bottom:.7rem; left:.9rem; font-size:1.15rem; }
   .lb-play.on{ color:var(--gold); }
   .lb-caption{ position:absolute; bottom:1.4rem; left:0; right:0; text-align:center; color:rgba(237,233,225,.5); font-size:.76rem; letter-spacing:.1em; font-variant-numeric: tabular-nums; }
-  @media (prefers-reduced-motion: reduce){ .lightbox img{ transition:none; } }
+  .lb-spinner{
+    position:absolute; width:40px; height:40px; margin:-20px 0 0 -20px; top:50%; left:50%;
+    border:3px solid rgba(237,233,225,.2); border-top-color:var(--gold);
+    border-radius:50%; opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .lb-spinner.show{ opacity:1; animation:lb-spin .8s linear infinite; }
+  @keyframes lb-spin{ to{ transform:rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce){ .lightbox img{ transition:none; } .lb-spinner.show{ animation:none; } }
 
   @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } .tile img, .tile::after{ transition:none; } }
 </style>
@@ -148,6 +155,7 @@
   <button class="lb-btn lb-close" id="lbClose" aria-label="Закрити">&times;</button>
   <button class="lb-btn lb-prev" id="lbPrev" aria-label="Попереднє фото">&#8249;</button>
   <img id="lbImg" alt="">
+  <div class="lb-spinner" id="lbSpinner" aria-hidden="true"></div>
   <button class="lb-btn lb-next" id="lbNext" aria-label="Наступне фото">&#8250;</button>
   <button class="lb-btn lb-play" id="lbPlay" aria-label="Слайд-шоу">&#9654;</button>
   <div class="lb-caption" id="lbCaption"></div>
@@ -157,107 +165,109 @@
 (function(){
   "use strict";
 
+  
+
   var photos = [
-"IMG_0004.jpg",
-"IMG_0007.jpg",
-"IMG_0009.jpg",
-"IMG_0026.jpg",
-"IMG_0035.jpg",
-"IMG_0043.jpg",
-"IMG_0075.jpg",
-"IMG_0083.jpg",
-"IMG_0089.jpg",
-"IMG_0092.jpg",
-"IMG_0106-2.jpg",
-"IMG_0112-2.jpg",
-"IMG_0129.jpg",
-"IMG_0131-2.jpg",
-"IMG_0146.jpg",
-"IMG_0148.jpg",
-"IMG_0150.jpg",
-"IMG_0184.jpg",
-"IMG_0185.jpg",
-"IMG_0201.jpg",
-"IMG_0217.jpg",
-"IMG_0225.jpg",
-"IMG_0231.jpg",
-"IMG_0244.jpg",
-"IMG_0254.jpg",
-"IMG_0255.jpg",
-"IMG_0266.jpg",
-"IMG_0274.jpg",
-"IMG_0279.jpg",
-"IMG_0282.jpg",
-"IMG_0299.jpg",
-"IMG_0305.jpg",
-"IMG_0310.jpg",
-"IMG_0316.jpg",
-"IMG_9203.jpg",
-"IMG_9208.jpg",
-"IMG_9212.jpg",
-"IMG_9235.jpg",
-"IMG_9240.jpg",
-"IMG_9245.jpg",
-"IMG_9275.jpg",
-"IMG_9281-2.jpg",
-"IMG_9380.jpg",
-"IMG_9408.jpg",
-"IMG_9430.jpg",
-"IMG_9437.jpg",
-"IMG_9438.jpg",
-"IMG_9442.jpg",
-"IMG_9456.jpg",
-"IMG_9463.jpg",
-"IMG_9468.jpg",
-"IMG_9474.jpg",
-"IMG_9480.jpg",
-"IMG_9545.jpg",
-"IMG_9548.jpg",
-"IMG_9554.jpg",
-"IMG_9557.jpg",
-"IMG_9577.jpg",
-"IMG_9584.jpg",
-"IMG_9587.jpg",
-"IMG_9597.jpg",
-"IMG_9626.jpg",
-"IMG_9645.jpg",
-"IMG_9695.jpg",
-"IMG_9700.jpg",
-"IMG_9706.jpg",
-"IMG_9709.jpg",
-"IMG_9713.jpg",
-"IMG_9735.jpg",
-"IMG_9738.jpg",
-"IMG_9740.jpg",
-"IMG_9754.jpg",
-"IMG_9762.jpg",
-"IMG_9768.jpg",
-"IMG_9776.jpg",
-"IMG_9783.jpg",
-"IMG_9790.jpg",
-"IMG_9793.jpg",
-"IMG_9799.jpg",
-"IMG_9800.jpg",
-"IMG_9810.jpg",
-"IMG_9817.jpg",
-"IMG_9818.jpg",
-"IMG_9872.jpg",
-"IMG_9874.jpg",
-"IMG_9880.jpg",
-"IMG_9888.jpg",
-"IMG_9908.jpg",
-"IMG_9915.jpg",
-"IMG_9925.jpg",
-"IMG_9932.jpg",
-"IMG_9940.jpg",
-"IMG_9942.jpg",
-"IMG_9946.jpg",
-"IMG_9953.jpg",
-"IMG_9958.jpg",
-"IMG_9970.jpg",
-"IMG_9984.jpg",
-"IMG_9989.jpg",
-"IMG_9999.jpg"
+  "IMG_0004.jpg",
+  "IMG_0007.jpg",
+  "IMG_0009.jpg",
+  "IMG_0026.jpg",
+  "IMG_0035.jpg",
+  "IMG_0043.jpg",
+  "IMG_0075.jpg",
+  "IMG_0083.jpg",
+  "IMG_0089.jpg",
+  "IMG_0092.jpg",
+  "IMG_0106-2.jpg",
+  "IMG_0112-2.jpg",
+  "IMG_0129.jpg",
+  "IMG_0131-2.jpg",
+  "IMG_0146.jpg",
+  "IMG_0148.jpg",
+  "IMG_0150.jpg",
+  "IMG_0184.jpg",
+  "IMG_0185.jpg",
+  "IMG_0201.jpg",
+  "IMG_0217.jpg",
+  "IMG_0225.jpg",
+  "IMG_0231.jpg",
+  "IMG_0244.jpg",
+  "IMG_0254.jpg",
+  "IMG_0255.jpg",
+  "IMG_0266.jpg",
+  "IMG_0274.jpg",
+  "IMG_0279.jpg",
+  "IMG_0282.jpg",
+  "IMG_0299.jpg",
+  "IMG_0305.jpg",
+  "IMG_0310.jpg",
+  "IMG_0316.jpg",
+  "IMG_9203.jpg",
+  "IMG_9208.jpg",
+  "IMG_9212.jpg",
+  "IMG_9235.jpg",
+  "IMG_9240.jpg",
+  "IMG_9245.jpg",
+  "IMG_9275.jpg",
+  "IMG_9281-2.jpg",
+  "IMG_9380.jpg",
+  "IMG_9408.jpg",
+  "IMG_9430.jpg",
+  "IMG_9437.jpg",
+  "IMG_9438.jpg",
+  "IMG_9442.jpg",
+  "IMG_9456.jpg",
+  "IMG_9463.jpg",
+  "IMG_9468.jpg",
+  "IMG_9474.jpg",
+  "IMG_9480.jpg",
+  "IMG_9545.jpg",
+  "IMG_9548.jpg",
+  "IMG_9554.jpg",
+  "IMG_9557.jpg",
+  "IMG_9577.jpg",
+  "IMG_9584.jpg",
+  "IMG_9587.jpg",
+  "IMG_9597.jpg",
+  "IMG_9626.jpg",
+  "IMG_9645.jpg",
+  "IMG_9695.jpg",
+  "IMG_9700.jpg",
+  "IMG_9706.jpg",
+  "IMG_9709.jpg",
+  "IMG_9713.jpg",
+  "IMG_9735.jpg",
+  "IMG_9738.jpg",
+  "IMG_9740.jpg",
+  "IMG_9754.jpg",
+  "IMG_9762.jpg",
+  "IMG_9768.jpg",
+  "IMG_9776.jpg",
+  "IMG_9783.jpg",
+  "IMG_9790.jpg",
+  "IMG_9793.jpg",
+  "IMG_9799.jpg",
+  "IMG_9800.jpg",
+  "IMG_9810.jpg",
+  "IMG_9817.jpg",
+  "IMG_9818.jpg",
+  "IMG_9872.jpg",
+  "IMG_9874.jpg",
+  "IMG_9880.jpg",
+  "IMG_9888.jpg",
+  "IMG_9908.jpg",
+  "IMG_9915.jpg",
+  "IMG_9925.jpg",
+  "IMG_9932.jpg",
+  "IMG_9940.jpg",
+  "IMG_9942.jpg",
+  "IMG_9946.jpg",
+  "IMG_9953.jpg",
+  "IMG_9958.jpg",
+  "IMG_9970.jpg",
+  "IMG_9984.jpg",
+  "IMG_9989.jpg",
+  "IMG_9999.jpg"
 ];
 
 
@@ -271,16 +281,29 @@
   // in the fullscreen viewer — that keeps the page light on mobile data.
   function thumbFor(name){ return "thumbs/" + name; }
 
+  // Native `loading="lazy"` does not defer images correctly inside a CSS
+  // multi-column (masonry) layout — browsers can't reliably tell how far a
+  // tile is from the viewport when the flow runs down columns, so every
+  // thumbnail would otherwise download immediately on page load. Instead,
+  // each tile only gets its real thumbnail src once an IntersectionObserver
+  // says it's actually near the viewport — that's what keeps first load light.
   function makeTile(i){
     var tile = document.createElement("div");
     tile.className = "tile";
     var img = document.createElement("img");
-    img.src = thumbFor(photos[i]);
+    img.dataset.src = thumbFor(photos[i]);
     img.alt = altFor(i);
-    img.loading = "lazy";
     tile.appendChild(img);
     tile.addEventListener("click", function(){ openLightbox(i); });
     return tile;
+  }
+
+  function loadTileImage(tile){
+    var img = tile.querySelector("img");
+    if (img && img.dataset.src){
+      img.src = img.dataset.src;
+      delete img.dataset.src;
+    }
   }
 
   grid.className = "gallery";
@@ -291,41 +314,82 @@
   grid.appendChild(frag);
   document.getElementById("galleryCount").textContent = String(photos.length).padStart(2, "0");
 
-  // each tile fades and rises into place as it scrolls into view
+  // each tile loads its thumbnail and fades/rises into place once it's
+  // getting close to the viewport (loaded a bit ahead of time so nothing
+  // pops in blank while scrolling)
   var tiles = grid.querySelectorAll(".tile");
   var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduceMotion || !("IntersectionObserver" in window)){
-    tiles.forEach(function(t){ t.classList.add("in-view"); });
+    tiles.forEach(function(t){ loadTileImage(t); t.classList.add("in-view"); });
   } else {
     var revealer = new IntersectionObserver(function(entries){
       entries.forEach(function(entry){
         if (entry.isIntersecting){
+          loadTileImage(entry.target);
           entry.target.classList.add("in-view");
           revealer.unobserve(entry.target);
         }
       });
-    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+    }, { rootMargin: "900px 0px 900px 0px", threshold: 0.01 });
     tiles.forEach(function(t){ revealer.observe(t); });
     // safety net: if something keeps a tile from ever intersecting, reveal anyway
-    window.setTimeout(function(){ tiles.forEach(function(t){ t.classList.add("in-view"); }); }, 4000);
+    window.setTimeout(function(){ tiles.forEach(function(t){ loadTileImage(t); t.classList.add("in-view"); }); }, 4000);
   }
 
   var lightbox = document.getElementById("lightbox");
   var lbImg = document.getElementById("lbImg");
+  var lbSpinner = document.getElementById("lbSpinner");
   var lbCaption = document.getElementById("lbCaption");
   var lbPlay = document.getElementById("lbPlay");
   var current = 0;
   var playTimer = null;
 
+  // full-resolution originals are heavy (0.5-4MB each), so the lightbox
+  // preloads the next/previous photo in the background as soon as one is
+  // opened — by the time someone actually taps an arrow, that image is
+  // usually already sitting in the browser cache and appears instantly.
+  // A spinner covers the (rare, first-tap) case where it isn't yet.
+  var preloaded = {};
+  function preload(i){
+    if (i < 0 || i >= photos.length || preloaded[i]) return;
+    var im = new Image();
+    im.src = photos[i];
+    preloaded[i] = im;
+  }
+
   function openLightbox(i){ current = i; render(); lightbox.classList.add("open"); }
 
+  var renderToken = 0;
   function render(){
+    var token = ++renderToken;
+    var target = photos[current];
     lbImg.classList.add("fading");
-    window.setTimeout(function(){
-      lbImg.src = photos[current];
+
+    function apply(){
+      if (token !== renderToken) return; // a newer tap has since superseded this one
+      lbImg.src = target;
       lbImg.alt = altFor(current);
       lbCaption.textContent = (current + 1) + " / " + photos.length;
       lbImg.classList.remove("fading");
+      lbSpinner.classList.remove("show");
+    }
+
+    window.setTimeout(function(){
+      if (token !== renderToken) return;
+      var cached = preloaded[current];
+      if (cached && cached.complete){
+        apply();
+      } else {
+        lbSpinner.classList.add("show");
+        var im = cached || new Image();
+        preloaded[current] = im;
+        im.onload = function(){ if (token === renderToken) apply(); };
+        if (!cached) im.src = target;
+        else if (im.complete) apply();
+      }
+      // warm the neighbors so the *next* tap is instant
+      preload(current + 1 < photos.length ? current + 1 : 0);
+      preload(current - 1 >= 0 ? current - 1 : photos.length - 1);
     }, 180);
   }
 
