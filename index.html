@@ -149,7 +149,7 @@
     <h2 class="display" id="galleryTitle">Фотографії весілля</h2>
     <div class="gallery-tabs" role="tablist">
       <button type="button" class="gallery-tab active" id="tabMain" role="tab" aria-selected="true">Наші фото</button>
-      <button type="button" class="gallery-tab" id="tabGuests" role="tab" aria-selected="false">Фото від гостей</button>
+      <button type="button" class="gallery-tab" id="tabGuests" role="tab" aria-selected="false">Гості</button>
     </div>
   </div>
 </div>
@@ -181,18 +181,26 @@
   "use strict";
 
   var photos = [
+  "IMG_0001.jpg",
   "IMG_0004.jpg",
   "IMG_0007.jpg",
   "IMG_0009.jpg",
+  "IMG_0012.jpg",
+  "IMG_0019.jpg",
   "IMG_0026.jpg",
   "IMG_0035.jpg",
   "IMG_0043.jpg",
+  "IMG_0074.jpg",
   "IMG_0075.jpg",
+  "IMG_0077.jpg",
+  "IMG_0079.jpg",
   "IMG_0083.jpg",
   "IMG_0089.jpg",
   "IMG_0092.jpg",
+  "IMG_0101.jpg",
   "IMG_0106-2.jpg",
   "IMG_0112-2.jpg",
+  "IMG_0127.jpg",
   "IMG_0129.jpg",
   "IMG_0131-2.jpg",
   "IMG_0146.jpg",
@@ -207,11 +215,14 @@
   "IMG_0244.jpg",
   "IMG_0254.jpg",
   "IMG_0255.jpg",
+  "IMG_0261.jpg",
   "IMG_0266.jpg",
   "IMG_0274.jpg",
   "IMG_0279.jpg",
   "IMG_0282.jpg",
+  "IMG_0286.jpg",
   "IMG_0299.jpg",
+  "IMG_0303.jpg",
   "IMG_0305.jpg",
   "IMG_0310.jpg",
   "IMG_0316.jpg",
@@ -221,26 +232,39 @@
   "IMG_9235.jpg",
   "IMG_9240.jpg",
   "IMG_9245.jpg",
+  "IMG_9256.jpg",
   "IMG_9275.jpg",
+  "IMG_9280.jpg",
   "IMG_9281-2.jpg",
+  "IMG_9299.jpg",
+  "IMG_9355.jpg",
+  "IMG_9361.jpg",
   "IMG_9380.jpg",
+  "IMG_9391.jpg",
   "IMG_9408.jpg",
   "IMG_9430.jpg",
+  "IMG_9434.jpg",
   "IMG_9437.jpg",
   "IMG_9438.jpg",
   "IMG_9442.jpg",
+  "IMG_9455.jpg",
   "IMG_9456.jpg",
   "IMG_9463.jpg",
   "IMG_9468.jpg",
   "IMG_9474.jpg",
   "IMG_9480.jpg",
+  "IMG_9531.jpg",
   "IMG_9545.jpg",
   "IMG_9548.jpg",
   "IMG_9554.jpg",
   "IMG_9557.jpg",
+  "IMG_9558.jpg",
+  "IMG_9567.jpg",
   "IMG_9577.jpg",
+  "IMG_9584-2.jpg",
   "IMG_9584.jpg",
   "IMG_9587.jpg",
+  "IMG_9592.jpg",
   "IMG_9597.jpg",
   "IMG_9626.jpg",
   "IMG_9645.jpg",
@@ -249,6 +273,7 @@
   "IMG_9706.jpg",
   "IMG_9709.jpg",
   "IMG_9713.jpg",
+  "IMG_9717.jpg",
   "IMG_9735.jpg",
   "IMG_9738.jpg",
   "IMG_9740.jpg",
@@ -268,6 +293,7 @@
   "IMG_9874.jpg",
   "IMG_9880.jpg",
   "IMG_9888.jpg",
+  "IMG_9900.jpg",
   "IMG_9908.jpg",
   "IMG_9915.jpg",
   "IMG_9925.jpg",
@@ -275,6 +301,7 @@
   "IMG_9940.jpg",
   "IMG_9942.jpg",
   "IMG_9946.jpg",
+  "IMG_9952.jpg",
   "IMG_9953.jpg",
   "IMG_9958.jpg",
   "IMG_9970.jpg",
@@ -284,10 +311,53 @@
 ];
 
   var guestPhotos = [
+    "IMG_0152.jpg",
+    "IMG_0161.jpg",
+    "IMG_0173.jpg",
+    "IMG_0175.jpg",
+    "IMG_0193.jpg",
+    "IMG_0197.jpg",
+    "IMG_0200.jpg",
+    "IMG_0224.jpg",
+    "IMG_0233.jpg",
+    "IMG_0245.jpg",
+    "IMG_0246.jpg",
+    "IMG_0248.jpg",
+    "IMG_0252.jpg",
+    "IMG_0257.jpg",
+    "IMG_0259.jpg",
+    "IMG_0319.jpg",
+    "IMG_0327.jpg",
+    "IMG_0330.jpg",
+    "IMG_0338.jpg",
+    "IMG_0340.jpg",
+    "IMG_0343.jpg",
+    "IMG_0344.jpg",
+    "IMG_0345.jpg",
+    "IMG_0349.jpg",
+    "IMG_0354.jpg",
+    "IMG_0364.jpg",
+    "IMG_0367.jpg",
+    "IMG_0375.jpg",
+    "IMG_0376.jpg",
+    "IMG_0380.jpg",
+    "IMG_0382.jpg",
+    "IMG_0385.jpg",
+    "IMG_0389.jpg",
+    "IMG_9215.jpg",
+    "IMG_9308.jpg",
+    "IMG_9311.jpg",
     "IMG_9314.jpg",
+    "IMG_9321.jpg",
+    "IMG_9394.jpg",
     "IMG_9396.jpg",
+    "IMG_9400.jpg",
+    "IMG_9400-2.jpg",
+    "IMG_9401.jpg",
     "IMG_9404.jpg",
+    "IMG_9487.jpg",
     "IMG_9498.jpg",
+    "IMG_9503.jpg",
     "IMG_9513.jpg",
     "IMG_9522.jpg",
     "IMG_9523.jpg",
@@ -295,27 +365,9 @@
     "IMG_9568.jpg",
     "IMG_9576.jpg",
     "IMG_9832.jpg",
-    "IMG_9858.jpg",
-    "IMG_0161.jpg",
-    "IMG_0175.jpg",
-    "IMG_0200.jpg",
-    "IMG_0224.jpg",
-    "IMG_0233.jpg",
-    "IMG_0327.jpg",
-    "IMG_0338.jpg",
-    "IMG_0344.jpg",
-    "IMG_0349.jpg",
-    "IMG_0354.jpg",
-    "IMG_0364.jpg",
-    "IMG_0367.jpg",
-    "IMG_0376.jpg",
-    "IMG_0380.jpg",
-    "IMG_0382.jpg",
-    "IMG_0385.jpg",
-    "IMG_0389.jpg",
-    "IMG_0257.jpg",
-    "IMG_0319.jpg",
-    "IMG_9215.jpg"
+    "IMG_9834.jpg",
+    "IMG_9848.jpg",
+    "IMG_9858.jpg"
   ];
 
 
@@ -324,7 +376,7 @@
 
   var collections = {
     main:   { photos: photos,      thumbDir: "thumbs/",       fullDir: "",        grid: mainGridEl,  built: false, label: "весільне фото" },
-    guests: { photos: guestPhotos, thumbDir: "guests/thumbs/", fullDir: "guests/", grid: guestGridEl, built: false, label: "фото від гостей" }
+    guests: { photos: guestPhotos, thumbDir: "guests/thumbs/", fullDir: "guests/", grid: guestGridEl, built: false, label: "гості" }
   };
 
   // Photos are served with a year-long "immutable" cache header (so repeat
@@ -334,7 +386,7 @@
   // that cached copy indefinitely, even after a hard refresh. Bumping this
   // version tag changes every photo URL, which forces a genuinely fresh
   // download regardless of what a visitor's browser cached before.
-  var ASSET_VERSION = "4";
+  var ASSET_VERSION = "7";
 
   function altFor(collId, i){ return "Даня та Аліна — " + collections[collId].label + " " + (i + 1); }
   function thumbFor(collId, name){ return collections[collId].thumbDir + name + "?v=" + ASSET_VERSION; }
@@ -414,7 +466,7 @@
     tabMain.setAttribute("aria-selected", collId === "main" ? "true" : "false");
     tabGuests.setAttribute("aria-selected", collId === "guests" ? "true" : "false");
     galleryCountEl.textContent = String(collections[collId].photos.length).padStart(2, "0");
-    galleryTitleEl.textContent = collId === "main" ? "Фотографії весілля" : "Фото від гостей";
+    galleryTitleEl.textContent = collId === "main" ? "Фотографії весілля" : "Гості";
   }
 
   tabMain.addEventListener("click", function(){ activateTab("main"); });
